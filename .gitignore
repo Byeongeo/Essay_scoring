@@ -1,0 +1,38 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 환경변수 (절대 커밋 금지 — Firebase/Gemini/Admin 키 포함)
+.env
+.env.local
+.env*.local
+
+# Firebase Admin 서비스 계정 키 파일
+serviceAccount*.json
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# Claude Code 로컬 설정 (개인 머신 한정 — 포크하는 교사에게 공유 불필요)
+.claude/settings.local.json

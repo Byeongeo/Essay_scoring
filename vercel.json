@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["icn1"],
+  "functions": {
+    "app/api/ocr/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/classify/route.ts": {
+      "maxDuration": 60
+    },
+    "app/api/grade/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}

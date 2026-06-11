@@ -1,0 +1,10 @@
+rules_version = '2';
+
+// 스캔 PDF/페이지 이미지 저장소. 1차 뼈대: 로그인 교사만 접근.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
