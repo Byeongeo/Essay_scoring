@@ -1,9 +1,11 @@
 rules_version = '2';
 
-// 스캔 PDF/페이지 이미지 저장소. 1차 뼈대: 로그인 교사만 접근.
+// 스캔 PDF/페이지 이미지 저장소 규칙.
+// 이 앱이 쓰는 경로(subjects/{id}/assessments/{id}/...)에만 적용되도록 좁혔다.
+// → 기존 프로젝트 공유 시 이 블록만 기존 규칙에 병합하면 다른 파일은 영향 없음.
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
+    match /subjects/{subjectId}/{allPaths=**} {
       allow read, write: if request.auth != null;
     }
   }
