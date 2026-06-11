@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import AuthGate from "@/components/AuthGate";
 import RubricBuilder from "@/components/RubricBuilder";
 import ExamplesEditor from "@/components/ExamplesEditor";
+import { DEFAULT_GRADING_MODEL, GRADING_MODELS } from "@/lib/models";
 import {
   createAssessment,
   getAssessment,
@@ -52,6 +53,7 @@ function EditContent({
   const [systemPrompt, setSystemPrompt] = useState("");
   const [examples, setExamples] = useState<ScoringExample[]>([]);
   const [rubric, setRubric] = useState<Rubric>({ criteria: [] });
+  const [gradingModel, setGradingModel] = useState<string>(DEFAULT_GRADING_MODEL);
 
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
@@ -73,6 +75,7 @@ function EditContent({
         setUseCanvas(a.useCanvas);
         setSystemPrompt(a.systemPrompt ?? "");
         setExamples(a.examples ?? []);
+        setGradingModel(a.gradingModel ?? DEFAULT_GRADING_MODEL);
       }
       if (r) setRubric(r);
     } catch (e) {
@@ -94,6 +97,7 @@ function EditContent({
       useCanvas,
       systemPrompt,
       examples,
+      gradingModel,
     };
     if (isNew) {
       const newId = await createAssessment(subjectId, data);
@@ -201,6 +205,27 @@ function EditContent({
             placeholder="예: 논거의 타당성과 표현의 명료성을 중점적으로 평가하세요."
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700">
+            채점 모델 (AI)
+          </label>
+          <select
+            value={gradingModel}
+            onChange={(e) => setGradingModel(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+          >
+            {GRADING_MODELS.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-slate-400">
+            정확도가 더 필요하면 Pro 계열, 빠르고 저렴하게는 Flash 계열을 고르세요.
+            (회차마다 다르게 설정 가능)
+          </p>
         </div>
 
         <div>

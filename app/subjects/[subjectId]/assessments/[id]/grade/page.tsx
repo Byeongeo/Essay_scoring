@@ -89,10 +89,15 @@ function GradeContent({ subjectId, id }: { subjectId: string; id: string }) {
   }, [selected]);
 
   function handleScoreChange(criterionName: string, score: number) {
+    const value = Number.isNaN(score) ? 0 : score;
     setScores((prev) => {
-      const next = prev.filter((s) => s.criterionName !== criterionName);
-      if (!Number.isNaN(score)) next.push({ criterionName, score });
-      return next;
+      // 이미 있으면 제자리에서 갱신(행 순서 유지), 없으면 추가
+      if (prev.some((s) => s.criterionName === criterionName)) {
+        return prev.map((s) =>
+          s.criterionName === criterionName ? { ...s, score: value } : s,
+        );
+      }
+      return [...prev, { criterionName, score: value }];
     });
   }
 
@@ -106,6 +111,7 @@ function GradeContent({ subjectId, id }: { subjectId: string; id: string }) {
         examples: assessment?.examples ?? [],
         systemPrompt: assessment?.systemPrompt ?? "",
         answerText: selected.ocrText ?? "",
+        model: assessment?.gradingModel,
       });
       setScores(
         result.scores.map((s) => ({
@@ -173,6 +179,9 @@ function GradeContent({ subjectId, id }: { subjectId: string; id: string }) {
           </div>
           <p className="text-xs text-amber-600">
             ⚠ AI 채점 결과는 부정확할 수 있으니 교사의 최종 확인이 필요합니다.
+            {assessment?.gradingModel && (
+              <span className="ml-2 text-slate-400">· 모델: {assessment.gradingModel}</span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-3">

@@ -46,6 +46,8 @@ export function gradeAnswer(body: {
   examples: unknown;
   systemPrompt: string;
   answerText: string;
+  /** 회차에 지정한 채점 모델 (선택) */
+  model?: string;
 }): Promise<GradingResult> {
   return postJson<GradingResult>("/api/grade", body);
 }

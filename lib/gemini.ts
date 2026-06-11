@@ -21,7 +21,7 @@ import type {
 
 // 멀티모달(OCR·머리글 추출) + 구조화 JSON 출력에 적합한 현행 안정 모델.
 // 교사가 GEMINI_MODEL 로 덮어쓸 수 있다. (gemini-2.0-flash 는 제공 중단됨)
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash";
 
 let client: GoogleGenAI | null = null;
 
@@ -192,6 +192,8 @@ export interface GradeInput {
   systemPrompt: string;
   /** OCR 텍스트 또는 온라인 직접입력 답안 */
   answerText: string;
+  /** 이 회차에 지정한 채점 모델 (미지정 시 DEFAULT_MODEL) */
+  model?: string;
 }
 
 export async function gradeSubmission(input: GradeInput): Promise<GradingResult> {
@@ -220,7 +222,7 @@ export async function gradeSubmission(input: GradeInput): Promise<GradingResult>
     `[교사 지침]\n${input.systemPrompt || "(없음)"}`;
 
   const res = await ai.models.generateContent({
-    model: DEFAULT_MODEL,
+    model: input.model || DEFAULT_MODEL,
     contents: [
       {
         role: "user",

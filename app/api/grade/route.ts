@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       examples: body.examples ?? [],
       systemPrompt: body.systemPrompt ?? "",
       answerText: body.answerText,
+      model: body.model,
     });
     return NextResponse.json(result);
   } catch (err) {

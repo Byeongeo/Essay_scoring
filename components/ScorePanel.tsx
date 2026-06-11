@@ -3,7 +3,13 @@
 /**
  * 채점표 패널 — 채점 화면(5) 우측 (controlled).
  * 루브릭 영역별 점수 선택 + 총점 + AI 근거 + AI 피드백 + "피드백 옮기기" + 교사 직접 피드백.
+ *
+ * 두 가지 모드:
+ *  (A) 구조화 루브릭이 있으면 → 영역별 급간 드롭다운으로 채점.
+ *  (B) 구조화 루브릭이 비어 있으면 → 시스템 프롬프트 기준으로 AI가 만든 점수표(scores)를
+ *      숫자 입력 행으로 표시(폴백). 교사가 영역을 직접 추가할 수도 있다.
  */
+import { useState } from "react";
 import type { CriterionScore, Rubric } from "@/lib/types";
 
 export interface ScorePanelProps {
@@ -35,6 +41,22 @@ export default function ScorePanel({
 }: ScorePanelProps) {
   const scoreOf = (name: string) =>
     scores.find((s) => s.criterionName === name)?.score;
+  const hasStructuredRubric = rubric.criteria.length > 0;
+  const [newName, setNewName] = useState("");
+
+  function addManualRow() {
+    const name = newName.trim();
+    if (!name) return;
+    onScoreChange(name, 0);
+    setNewName("");
+  }
+
+  const totalRow = (
+    <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm font-semibold">
+      <span>총점</span>
+      <span className="tabular-nums">{totalScore}점</span>
+    </div>
+  );
 
   return (
     <div className="space-y-5">
@@ -51,11 +73,9 @@ export default function ScorePanel({
 
       <section>
         <h3 className="mb-2 text-sm font-semibold text-slate-700">채점표</h3>
-        {rubric.criteria.length === 0 ? (
-          <p className="rounded-lg border border-slate-200 p-3 text-sm text-slate-400">
-            이 회차에 루브릭이 없습니다. 회차 설정에서 먼저 루브릭을 작성하세요.
-          </p>
-        ) : (
+
+        {hasStructuredRubric ? (
+          // ---- (A) 구조화 루브릭 모드 ----
           <div className="space-y-2">
             {rubric.criteria.map((c) => (
               <div
@@ -67,9 +87,7 @@ export default function ScorePanel({
                 </span>
                 <select
                   value={scoreOf(c.name) ?? ""}
-                  onChange={(e) =>
-                    onScoreChange(c.name, Number(e.target.value))
-                  }
+                  onChange={(e) => onScoreChange(c.name, Number(e.target.value))}
                   className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
                 >
                   <option value="">미채점</option>
@@ -81,9 +99,56 @@ export default function ScorePanel({
                 </select>
               </div>
             ))}
-            <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm font-semibold">
-              <span>총점</span>
-              <span className="tabular-nums">{totalScore}점</span>
+            {totalRow}
+          </div>
+        ) : (
+          // ---- (B) 폴백 모드: 루브릭이 없으면 AI 점수표/직접 입력 ----
+          <div className="space-y-2">
+            {scores.length === 0 ? (
+              <p className="rounded-lg border border-dashed border-slate-300 p-3 text-sm text-slate-500">
+                구조화 루브릭이 없습니다. <strong>“AI 채점 실행”</strong>을 누르면 채점 시스템
+                프롬프트의 기준으로 영역·점수가 자동 생성됩니다. (또는 회차 설정에서 루브릭을
+                작성하거나, 아래에서 영역을 직접 추가하세요.)
+              </p>
+            ) : (
+              <>
+                {scores.map((s) => (
+                  <div
+                    key={s.criterionName}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 p-3"
+                  >
+                    <span className="text-sm font-medium text-slate-700">
+                      {s.criterionName}
+                    </span>
+                    <input
+                      type="number"
+                      value={s.score}
+                      onChange={(e) =>
+                        onScoreChange(s.criterionName, Number(e.target.value))
+                      }
+                      className="w-24 rounded-lg border border-slate-300 px-2 py-1.5 text-right text-sm"
+                    />
+                  </div>
+                ))}
+                {totalRow}
+              </>
+            )}
+
+            {/* 영역 직접 추가 */}
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && addManualRow()}
+                placeholder="영역 직접 추가 (예: 사료의 식별과 평가)"
+                className="flex-1 rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
+              />
+              <button
+                onClick={addManualRow}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
+              >
+                + 추가
+              </button>
             </div>
           </div>
         )}

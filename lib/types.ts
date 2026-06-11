@@ -66,6 +66,8 @@ export interface Assessment {
   systemPrompt: string;
   /** 채점 예시문 */
   examples: ScoringExample[];
+  /** 이 회차 AI 채점에 쓸 Gemini 모델 (미지정 시 서버 기본값) */
+  gradingModel?: string;
   createdAt?: Millis;
 }
 
