@@ -4,10 +4,13 @@
 > 거기에 "지금까지 한 것 / 지금 막 멈춘 지점 / 다음에 할 일"이 정리돼 있습니다.
 
 ## 👉 현재 상태 (요약)
-- **1차 MVP 완성** (구현 순서 1~4단계) + 회차별 채점 모델 선택 + 루브릭 폴백 채점표까지 구현·빌드 통과.
-- **Gemini 실호출 검증 완료** (모델 `gemini-3.5-flash`). 로컬에서 채점/머리글 추출 정상.
-- **Firebase 연동 준비 완료** — 기존 프로젝트 `cu-milksurvey-2025` 재사용(Blaze), 규칙·Auth·Storage 설정됨, 값은 `.env.local`에 있음.
-- **다음 할 일: Vercel 첫 Import + 배포** (아직 안 함). → 상세: [HANDOFF.md](HANDOFF.md)
+- **1차 MVP 완성** (구현 순서 1~4단계) + 회차별 채점 모델 선택 + 루브릭 폴백 채점표. 빌드 통과.
+- **Gemini 실호출 검증 완료** (모델 `gemini-3.5-flash`). 채점/머리글 추출 정상.
+- **Vercel 배포 완료** → https://essay-scoring-ywan.vercel.app (프로젝트 `essay-scoring-ywan`). GitHub `main` 푸시 시 자동 재배포.
+- **배포본 E2E 일부 검증** — Google 로그인 ✅, 과목 추가(Firestore 쓰기/읽기·보안규칙) ✅.
+  남은 검증: **AI 채점(/api/grade)·PDF 업로드(분류/OCR)·리포트**.
+- **Firebase**: `cu-milksurvey-2025` 재사용(Blaze), 규칙 게시됨, 승인 도메인에 `essay-scoring-ywan.vercel.app` 추가됨. 키는 `.env.local`.
+- **다음 할 일**: 배포본에서 AI 채점/업로드/리포트 최종 확인. → 상세: [HANDOFF.md](HANDOFF.md)
 
 ## 프로젝트 개요
 교사가 서논술형 답안(스캔 PDF 일괄 업로드)을 받아 학생별로 자동 분류하고 Gemini로 OCR·채점한 뒤,

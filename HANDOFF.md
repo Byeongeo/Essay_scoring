@@ -37,30 +37,32 @@
 
 ---
 
-## 4. ⏭️ 지금 멈춘 지점 = 다음에 할 일: **Vercel 첫 배포**
-**Vercel에 이 레포로 만든 프로젝트가 아직 없음** (한 번도 Import 안 함). 아래 한 번만 하면 이후 푸시는 자동 배포됨.
+## 4. ✅ Vercel 배포 완료 — 이제 남은 건 배포본 최종 검증
+- **배포 주소**: https://essay-scoring-ywan.vercel.app
+- **Vercel 프로젝트**: `essay-scoring-ywan` (team `shiri07181-1176's projects`, Hobby). 빌드 READY 확인.
+- **GitHub `main` 푸시 시 자동 재배포**됨(Git 연결됨). 코드 고치면 push만 하면 반영.
+- 환경변수(11개)는 Vercel 프로젝트 Settings → Environments에 등록됨(`.env.local`과 동일).
+  - ⚠️ 빈 값이던 `RESEND_API_KEY`/`EMAIL_FROM`은 등록 안 함(2차 기능). 나중에 이메일 붙일 때 추가.
+- Firebase **승인 도메인에 `essay-scoring-ywan.vercel.app` 추가 완료** → 로그인 정상.
 
-### ① Import
-[vercel.com/new](https://vercel.com/new) → GitHub 연결 → **`Byeongeo/Essay_scoring`** 선택 → Import (Framework: Next.js 자동).
+### 배포본 E2E 검증 현황
+- ✅ Google 로그인 (Auth)
+- ✅ 과목 추가 (Firestore 쓰기/읽기 + 보안 규칙) — 규칙 정상 게시 확인됨
+- ⏳ **남은 것**: 회차/루브릭 저장, PDF 업로드(머리글 분류/OCR), **AI 채점(/api/grade)**, 리포트 집계.
+  특히 **AI 채점**을 배포본에서 한 번 돌려 `GEMINI_API_KEY`가 서버에 잘 붙었는지 최종 확인할 것.
+  → 절차는 [VERIFY.md](VERIFY.md) D 체크리스트.
 
-### ② 환경변수 — `.env.local` 내용 통째로 붙여넣기
-Vercel Import 화면의 **Environment Variables**는 `.env` 텍스트를 붙여넣으면 자동 파싱됨.
-→ 내 PC의 `.env.local` 전체 복사 → 붙여넣기. (주석·`\n`·따옴표 그대로 처리됨)
-필요한 키: `NEXT_PUBLIC_FIREBASE_*`(6) + `FIREBASE_ADMIN_*`(3) + `GEMINI_API_KEY` + `GEMINI_MODEL`.
+### 알려진 사소한 UX
+- 과목/입력 폼에서 **입력칸이 비면 추가 버튼이 비활성**이라 "안 눌린다"고 오해하기 쉬움(이름 입력해야 활성).
+  교사 배포용이라 추후 안내 문구 보강 고려 가능.
 
-### ③ Deploy → ④ 배포 직후 필수
-- 배포되면 `xxxx.vercel.app` 주소 생성.
-- **Firebase 콘솔(cu-milksurvey-2025) → Authentication → Settings → 승인된 도메인에 그 `*.vercel.app` 추가.**
-  (안 하면 배포본에서 Google 로그인이 `unauthorized-domain`으로 실패)
-
-### ⑤ 동작 확인
-[VERIFY.md](VERIFY.md)의 **D 체크리스트**: 로그인 → 과목추가(유지되면 Firestore·규칙 OK) → 회차/루브릭 → (PDF 있으면)업로드·채점 → 리포트.
-
-### 빌드 실패 시 디버깅 힌트
-- `auth/invalid-api-key` → `NEXT_PUBLIC_FIREBASE_*` 6개 누락
-- 채점 500 `GEMINI_API_KEY...` → `GEMINI_API_KEY` 누락
-- 로그인 팝업 `unauthorized-domain` → ④ 승인 도메인 누락
-- 과목 저장 `permission-denied` → 보안 규칙 미게시
+### 배포 문제 시 디버깅 힌트
+- 로그인 팝업이 닫히고 콘솔에 `Cross-Origin-Opener-Policy ... window.closed` → 팝업 로그인 COOP 이슈.
+  지금은 로그인 됨(경고 무시 가능). 정 불안정하면 `signInWithPopup` → `signInWithRedirect`로 교체.
+- 과목/회차 저장 `permission-denied` → Firestore 규칙 미게시(또는 다른 프로젝트 규칙 수정).
+- 채점 500 `GEMINI_API_KEY...` → Vercel 환경변수 `GEMINI_API_KEY` 누락.
+- 빌드/런타임 `auth/invalid-api-key` → `NEXT_PUBLIC_FIREBASE_*` 누락.
+- Vercel 빌드 로그·런타임 로그는 Vercel MCP(`get_deployment_build_logs`, `get_runtime_logs`)로 확인 가능.
 
 ---
 
